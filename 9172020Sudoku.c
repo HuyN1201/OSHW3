@@ -20,6 +20,10 @@ int puzzle[PUZZLE_SIZE+1][PUZZLE_SIZE+1] = {
             {-1,9,6,1,5,3,7,2,8,4},
             {-1,2,8,7,4,1,9,6,3,5},
             {-1,3,4,5,2,8,6,1,7,9}
+    //(i,j) -> Regions
+    //(1,1) -> (1,4) -> (1,7) 
+    //(4,1) -> (4,4) -> (4,7)
+    //(7,1) -> (7,4) -> (7,7)
 };
 
 //Array to hold answers to each threads
@@ -52,7 +56,16 @@ int main(){
     //Checking all COLs
     //Creating a variable of type parameter 
     parameters* data = (parameters *) malloc(sizeof(parameters));
-    int thread_number1 = 0;
+
+    //Creation of basic thread
+    data = (parameters *) malloc(sizeof(parameters));
+    data->row = 0;
+    data->col = 0;
+    data->thread_number = 0;
+    pthread_create(&threads[0], 0, do_nothing, data);
+
+    //For loop to create 9 threads to check each columns
+    int thread_number1 = 1;
     for(int i = 1; i < PUZZLE_SIZE+1; ++i){
         //Giving that variable data
         data = (parameters *) malloc(sizeof(parameters));
@@ -65,8 +78,8 @@ int main(){
         thread_number1++;
     }
 
-    //Checking all ROWs
-    int thread_number2 = 9;
+    //For loop to create 9 threads to check all rows
+    int thread_number2 = 10;
     for(int i = 1; i < PUZZLE_SIZE+1; ++i){
         data = (parameters *) malloc(sizeof(parameters));
         data->row = i;
@@ -76,12 +89,8 @@ int main(){
         thread_number2++;
     }
 
-    //Checking all REGIONs
-    int thread_number3 = 18;
-    //(i,j) -> Regions
-    //(1,1) -> (1,4) -> (1,7) 
-    //(4,1) -> (4,4) -> (4,7)
-    //(7,1) -> (7,4) -> (7,7)
+    //Two for loops to create 9 threads to check 9 regions
+    int thread_number3 = 19;
     for(int i = 1; i < PUZZLE_SIZE + 1; i+=3){
         for(int j = 1; j < PUZZLE_SIZE + 1; j+=3){
                 data = (parameters *) malloc(sizeof(parameters));
@@ -92,13 +101,6 @@ int main(){
                 thread_number3++;
         }
     }
-
-    //Creation of basic thread
-    data = (parameters *) malloc(sizeof(parameters));
-    data->row = 0;
-    data->col = 0;
-    data->thread_number = 27;
-    pthread_create(&threads[27], 0, do_nothing, data);
 
     //Wait for all threads to finish
     for(int i = 0; i < NUMBER_OF_THREADS; ++i){
@@ -124,7 +126,14 @@ int main(){
     return 0;
 }
 
-//Checking all columns
+//Basic thread creation
+void* do_nothing(void* param){
+    parameters* position = (parameters*)param;
+    final_result[position->thread_number] = 1;
+    pthread_exit(0);
+}
+
+//Checking a column
 void* col_valid(void* param){
     parameters* position = (parameters*)param;
 
@@ -143,15 +152,14 @@ void* col_valid(void* param){
 
     if(col_good){
         final_result[position->thread_number] = 1;
-        printf("col %d is good, %d \n", position->col, position->thread_number);
     } else {
-        printf("%d col is bad, %d \n", position->col, position->thread_number);
+        printf("Col %d is bad.\n", position->col);
     }
 
     pthread_exit(0);
 }
 
-//Checking all rows
+//Checking a row
 void* row_valid(void* param){
  parameters* position = (parameters*)param;
 
@@ -170,15 +178,14 @@ void* row_valid(void* param){
 
     if(row_good){
         final_result[position->thread_number] = 1;
-        printf("row %d is good, %d \n", position->row, position->thread_number);
     } else {
-        printf("%d row is bad, %d \n", position->row, position->thread_number);
+        printf("Row %d is bad.\n", position->row);
     }
  
     pthread_exit(0);
 }
 
-//Checking all regions
+//Checking a region
 void* region_valid(void* param){
     parameters* position = (parameters*)param;
 
@@ -199,17 +206,9 @@ void* region_valid(void* param){
 
     if(one_region_good){
         final_result[position->thread_number] = 1;
-        printf("Region (%d, %d) is good, %d \n", position->row, position->col, position->thread_number);
     } else {
-        printf("(%d, %d) is bad, %d \n", position->row, position->col, position->thread_number);
+        printf("Region (%d, %d) is bad. \n", position->row, position->col);
     }
 
-    pthread_exit(0);
-}
-
-//Basic thread creation
-void* do_nothing(void* param){
-    parameters* position = (parameters*)param;
-    final_result[position->thread_number] = 1;
     pthread_exit(0);
 }
