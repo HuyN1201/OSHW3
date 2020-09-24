@@ -5,7 +5,7 @@
 
 //Defining global variable of total thread count for check sudoku
 //Defining global variable of puzzle size 
-#define NUMBER_OF_THREADS 27
+#define NUMBER_OF_THREADS 28
 #define PUZZLE_SIZE 9
 
 //Defining our puzzle with size 9+1 x 9+1 
@@ -40,6 +40,9 @@ typedef struct{
     int col;
     int thread_number;
 } parameters;
+
+//Basic Thread
+void* do_nothing(void* param);
 
 int main(){
 
@@ -89,6 +92,13 @@ int main(){
                 thread_number3++;
         }
     }
+
+    //Creation of basic thread
+    data = (parameters *) malloc(sizeof(parameters));
+    data->row = 0;
+    data->col = 0;
+    data->thread_number = 27;
+    pthread_create(&threads[27], 0, do_nothing, data);
 
     //Wait for all threads to finish
     for(int i = 0; i < NUMBER_OF_THREADS; ++i){
@@ -168,6 +178,7 @@ void* row_valid(void* param){
     pthread_exit(0);
 }
 
+//Checking all regions
 void* region_valid(void* param){
     parameters* position = (parameters*)param;
 
@@ -193,5 +204,12 @@ void* region_valid(void* param){
         printf("(%d, %d) is bad, %d \n", position->row, position->col, position->thread_number);
     }
 
+    pthread_exit(0);
+}
+
+//Basic thread creation
+void* do_nothing(void* param){
+    parameters* position = (parameters*)param;
+    final_result[position->thread_number] = 1;
     pthread_exit(0);
 }
