@@ -143,61 +143,28 @@ void* col_valid(void* param){
 
 //Checking all rows
 void* row_valid(void* param){
-    //Setting position to param's data
-    //data->row = 1
-    //data->col = 1
-    //data->thread_number = 2
-    parameters* position = (parameters*)param;
+ parameters* position = (parameters*)param;
 
-    
-    //row_result array variable with PUZZLE_SIZE
-    //This variable holds the validation of ALL rows in the sudoku board
     int row_result[PUZZLE_SIZE+1] = {0};
+    for(int i = 1; i <PUZZLE_SIZE+1; ++i){
+        row_result[puzzle[position->col][i]] = 1;
+    }
 
-    //For loop to start checking each row
-    for(int i = 1; i < PUZZLE_SIZE+1; ++i){
-        
-        //This variable holds the validation of ONE row in the sudoku board
-        int each_row_result[PUZZLE_SIZE+1] = {0};
-        //For loop to loop through the puzzle row starting at [i][j] to assign each number present a 1
-        for(int j = 1; j <PUZZLE_SIZE+1; ++j){
-            each_row_result[puzzle[i][j]] = 1;
-        }
-
-        //Varible to hold the validation of one row
-        int one_row_good = 1;
-        //For loop to check if each number from 1-9 is assign a 1
-        //If not, they will return a result of 0. Indicating that they were not in the row -> bad row -> 0
-        for(int j = 1; j < PUZZLE_SIZE+1; ++j){
-            if(each_row_result[j] == 0){
-                one_row_good = 0;
-                break;
-            }
-        }
-
-        //If this row is good, assign this row a 1
-        if(one_row_good){
-            row_result[i] = 1;
-        } else {
-            printf("row %d is bad. \n", i);
+    int row_good = 1;
+    for(int j = 1; j < PUZZLE_SIZE+1; ++j){
+        if(row_result[j] == 0){
+            row_good = 0;
+            break;
         }
     }
 
-    //Variable to hold the validation of ALL row
-    int all_row_good = 1;
-    //For loop to check if each row from 1-9 is assign a 1, indicating that its an valid row
-    for(int i = 1; i < PUZZLE_SIZE + 1; ++i){
-        if(row_result[i] == 0){
-              all_row_good = 0;
-              break;
-        }
-    }
-
-    //If all rows are valid, assign this thread postion in final_result array as 1
-    if(all_row_good){
+    if(row_good){
         final_result[position->thread_number] = 1;
+        printf("row %d is good \n", position->row);
+    } else {
+        printf("%d row is bad. \n", position->row);
     }
-
+ 
     pthread_exit(0);
 }
 
