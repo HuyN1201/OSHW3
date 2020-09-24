@@ -5,7 +5,7 @@
 
 //Defining global variable of total thread count for check sudoku
 //Defining global variable of puzzle size 
-#define NUMBER_OF_THREADS 19
+#define NUMBER_OF_THREADS 27
 #define PUZZLE_SIZE 9
 
 //Defining our puzzle with size 9+1 x 9+1 
@@ -169,25 +169,16 @@ void* row_valid(void* param){
 }
 
 void* region_valid(void* param){
-    //Setting position to param's data
-    //data->row = 1
-    //data->col = 4
-    //data->thread_number = 4 (Second region's information)
     parameters* position = (parameters*)param;
 
-    //each_region array variable to hold validation of all numbers inside the region
     int each_region[PUZZLE_SIZE+1] = {0};
-    //For loop to check the first number from the top right position going right to left
-    //Assigning each number present a 1 if its in the region
     for(int i = position->row; i < position->row + 3; ++i){
         for(int j = position->col; j < position->col + 3; ++j){
             each_region[puzzle[i][j]] = 1;
         }
     }
 
-    //Variable to check if the ONE region is good
     int one_region_good = 1;
-    //Loop to check if all the numbers in the region is present, if not, assign this region a 0
     for(int j = 1; j < PUZZLE_SIZE + 1; ++j){
         if(each_region[j] == 0){
             one_region_good = 0;
@@ -195,11 +186,11 @@ void* region_valid(void* param){
         }
     }
 
-    //If this region is good, assigning the thread number for this thread a 1.
     if(one_region_good){
         final_result[position->thread_number] = 1;
+        printf("Region (%d, %d) is good, %d \n", position->row, position->col, position->thread_number);
     } else {
-        printf("Region (%d, %d) is bad. \n", position->row, position->col);
+        printf("(%d, %d) is bad, %d \n", position->row, position->col, position->thread_number);
     }
 
     pthread_exit(0);
