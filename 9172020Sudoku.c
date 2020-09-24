@@ -120,7 +120,7 @@ void* col_valid(void* param){
 
     int col_result[PUZZLE_SIZE+1] = {0};
     for(int i = 1; i <PUZZLE_SIZE+1; ++i){
-        col_result[puzzle[i][position->row]] = 1;
+        col_result[puzzle[i][position->col]] = 1;
     }
 
     int col_good = 1;
@@ -133,9 +133,9 @@ void* col_valid(void* param){
 
     if(col_good){
         final_result[position->thread_number] = 1;
-        printf("col %d is good \n", position->col);
+        printf("col %d is good, %d \n", position->col, position->thread_number);
     } else {
-        printf("%d col is bad. \n", position->col);
+        printf("%d col is bad, %d \n", position->col, position->thread_number);
     }
 
     pthread_exit(0);
@@ -147,7 +147,7 @@ void* row_valid(void* param){
 
     int row_result[PUZZLE_SIZE+1] = {0};
     for(int i = 1; i <PUZZLE_SIZE+1; ++i){
-        row_result[puzzle[position->col][i]] = 1;
+        row_result[puzzle[position->row][i]] = 1;
     }
 
     int row_good = 1;
@@ -160,9 +160,9 @@ void* row_valid(void* param){
 
     if(row_good){
         final_result[position->thread_number] = 1;
-        printf("row %d is good \n", position->row);
+        printf("row %d is good, %d \n", position->row, position->thread_number);
     } else {
-        printf("%d row is bad. \n", position->row);
+        printf("%d row is bad, %d \n", position->row, position->thread_number);
     }
  
     pthread_exit(0);
