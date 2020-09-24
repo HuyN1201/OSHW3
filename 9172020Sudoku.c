@@ -5,7 +5,7 @@
 
 //Defining global variable of total thread count for check sudoku
 //Defining global variable of puzzle size 
-#define NUMBER_OF_THREADS 28
+#define NUMBER_OF_THREADS 19
 #define PUZZLE_SIZE 9
 
 //Defining our puzzle with size 9+1 x 9+1 
@@ -52,6 +52,7 @@ int main(){
     int thread_number1 = 0;
     for(int i = 1; i < PUZZLE_SIZE+1; ++i){
         //Giving that variable data
+        data = (parameters *) malloc(sizeof(parameters));
         data->row = 1;
         data->col = i;
         data->thread_number = thread_number1;
@@ -79,8 +80,8 @@ int main(){
                 data = (parameters *) malloc(sizeof(parameters));
                 data->row = i;
                 data->col = j;
-                data->thread_number = thread_number;
-                pthread_create(&threads[thread_number], 0, region_valid, data);
+                data->thread_number = thread_number3;
+                pthread_create(&threads[thread_number3], 0, region_valid, data);
                 thread_number3++;
         }
     }
@@ -128,6 +129,7 @@ void* col_valid(void* param){
 
     if(col_good){
         final_result[position->thread_number] = 1;
+        printf("col %d is good \n", position->col);
     } else {
         printf("%d col is bad. \n", position->col);
     }
