@@ -63,11 +63,15 @@ int main(){
     }
 
     //Checking all ROWs
-    data = (parameters *) malloc(sizeof(parameters));
-    data->row = 1;
-    data->col = 1;
-    data->thread_number = 9;
-    pthread_create(&threads[9], 0, row_valid, data);
+    int thread_number2 = 9;
+    for(int i = 1; i < PUZZLE_SIZE+1; ++i){
+        data = (parameters *) malloc(sizeof(parameters));
+        data->row = i;
+        data->col = 1;
+        data->thread_number = thread_number2;
+        pthread_create(&threads[thread_number2], 0, row_valid, data);
+        thread_number2++;
+    }
 
     //Checking all REGIONs
     int thread_number3 = 18;
