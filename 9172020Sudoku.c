@@ -5,7 +5,7 @@
 
 //Defining global variable of total thread count for check sudoku
 //Defining global variable of puzzle size 
-#define NUMBER_OF_THREADS 11
+#define NUMBER_OF_THREADS 28
 #define PUZZLE_SIZE 9
 
 //Defining our puzzle with size 9+1 x 9+1 
@@ -49,23 +49,27 @@ int main(){
     //Checking all COLs
     //Creating a variable of type parameter 
     parameters* data = (parameters *) malloc(sizeof(parameters));
-    //Giving that variable data
-    data->row = 1;
-    data->col = 1;
-    data->thread_number = 0;
-    //Creating the thread with the specific information
-    //            (thread, NULL, Function, Parameter)
-    pthread_create(&threads[0], 0, col_valid, data);
+    int thread_number1 = 0;
+    for(int i = 1; i < PUZZLE_SIZE+1; ++i){
+        //Giving that variable data
+        data->row = 1;
+        data->col = i;
+        data->thread_number = thread_number1;
+        //Creating the thread with the specific information
+        //            (thread, NULL, Function, Parameter)
+        pthread_create(&threads[thread_number1], 0, col_valid, data);
+        thread_number1++;
+    }
 
     //Checking all ROWs
     data = (parameters *) malloc(sizeof(parameters));
     data->row = 1;
     data->col = 1;
-    data->thread_number = 1;
-    pthread_create(&threads[1], 0, row_valid, data);
+    data->thread_number = 9;
+    pthread_create(&threads[9], 0, row_valid, data);
 
     //Checking all REGIONs
-    int thread_number = 2;
+    int thread_number3 = 18;
     //(i,j) -> Regions
     //(1,1) -> (1,4) -> (1,7) 
     //(4,1) -> (4,4) -> (4,7)
@@ -77,7 +81,7 @@ int main(){
                 data->col = j;
                 data->thread_number = thread_number;
                 pthread_create(&threads[thread_number], 0, region_valid, data);
-                thread_number++;
+                thread_number3++;
         }
     }
 
@@ -107,58 +111,25 @@ int main(){
 
 //Checking all columns
 void* col_valid(void* param){
-    //Setting position to param's data
-    //data->row = 1
-    //data->col = 1
-    //data->thread_number = 1
     parameters* position = (parameters*)param;
 
-    //col_result array variable with PUZZLE_SIZE
-    //This variable holds the validation of ALL columns in the sudoku board
     int col_result[PUZZLE_SIZE+1] = {0};
+    for(int i = 1; i <PUZZLE_SIZE+1; ++i){
+        col_result[puzzle[i][position->row]] = 1;
+    }
 
-    //For loop to start checking each column
-    for(int i = 1; i < PUZZLE_SIZE+1; ++i){
-        
-        //This variable holds the validation of ONE column in the sudoku board
-        int each_col_result[PUZZLE_SIZE+1] = {0};
-        //For loop to loop through the puzzle column starting at [j][i] to assign each number present a 1
-        for(int j = 1; j <PUZZLE_SIZE+1; ++j){
-            each_col_result[puzzle[j][i]] = 1;
-        }
-
-        //Varible to hold the validation of one column
-        int one_col_good = 1;
-        //For loop to check if each number from 1-9 is assign a 1
-        //If not, they will return a result of 0. Indicating that they were not in the column -> bad column -> 0
-        for(int j = 1; j < PUZZLE_SIZE+1; ++j){
-            if(each_col_result[j] == 0){
-                one_col_good = 0;
-                break;
-            }
-        }
-
-        //If this column is good, assign this column a 1
-        if(one_col_good){
-            col_result[i] = 1;
-        } else {
-            printf("col %d is bad. \n", i);
+    int col_good = 1;
+    for(int j = 1; j < PUZZLE_SIZE+1; ++j){
+        if(col_result[j] == 0){
+            col_good = 0;
+            break;
         }
     }
 
-    //Variable to hold the validation of ALL column
-    int all_col_good = 1;
-    //For loop to check if each column from 1-9 is assign a 1, indicating that its an valid column
-    for(int i = 1; i < PUZZLE_SIZE + 1; ++i){
-        if(col_result[i] == 0){
-              all_col_good = 0;
-              break;
-        }
-    }
-
-    //If all columns are valid, assign this thread postion in final_result array as 1
-    if(all_col_good){
+    if(col_good){
         final_result[position->thread_number] = 1;
+    } else {
+        printf("%d col is bad. \n", position->col);
     }
 
     pthread_exit(0);
